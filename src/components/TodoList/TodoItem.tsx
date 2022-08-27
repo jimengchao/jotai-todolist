@@ -13,7 +13,7 @@ const TodoItem: FunctionComponent<Props> = (props: Props) => {
     <div className="basis-8">
       <input type="checkbox" checked={todo.done} onChange={() => props.onChange(todo)} />
     </div>
-    <div className="flex-1">
+    <div className={`flex-1 ${todo.done ? 'line-through' : ''}`}>
       {todo.task}
     </div>
     <div className="basis-28 text-right">

@@ -30,17 +30,17 @@ const TodoForm: FunctionComponent = () => {
   }
 
   return (
-    <div>
-      <input className='px-3' placeholder='请输入计划' type="text" value={formState.task} name="task" onChange={handleChange} />
-      <input className='mx-3 px-3' placeholder='请输入价格' type="number" value={formState.price || ''} name="price" onChange={handleChange} />
-      <select name="coinType" onChange={handleChange}>
+    <div className='text-black'>
+      <input className='px-3 ' placeholder='请输入计划' type="text" value={formState.task} name="task" onChange={handleChange} />
+      <input className='mx-3 px-3 decoration-black' placeholder='请输入价格' type="number" value={formState.price || ''} name="price" onChange={handleChange} />
+      <select name="coinType" onChange={handleChange} className="decoration-black">
         {
           (Object.keys(COIN_TYPE) as COIN_KEY_TYPE[]).map((item) =>
             <option key={item} value={item} label={COIN_TYPE[item]}>{COIN_TYPE[item]}</option>
           )
         }
       </select>
-      <button className='text-small px-4 py-1 ml-5' onClick={handleSubmit}>添加</button>
+      <button className='text-small px-4 py-1 ml-5 text-white' onClick={handleSubmit}>添加</button>
     </div>
   )
 }
