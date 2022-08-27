@@ -46,6 +46,11 @@ export const todoChange = atom(null, (get, set, update: ITodoForm) => {
   })
 })
 
+export const todoDelete = atom(null, (get, set, update: ITodoForm) => {
+  set(todoList, (prev): ITodoForm[] => prev.filter(item => item.id !== update.id))
+})
+
+
 export const planTodoList = selectAtom(todoList, (todo) => todo.filter(item => !item.done));
 
 export const doneTodoList = selectAtom(todoList, (todo) => todo.filter(item => item.done));

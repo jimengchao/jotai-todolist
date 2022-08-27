@@ -2,8 +2,8 @@ import type { FunctionComponent } from 'react'
 import { useAtom, useSetAtom } from 'jotai'
 import TodoForm from './TodoForm'
 import TodoItem from './TodoItem'
-import ToalTotal from './TodoTotal'
-import { doneTodoList, planTodoList, forexRates, calcForexRates, todoChange, useTotal } from '../../store/todo'
+import Total from './TodoTotal'
+import { doneTodoList, planTodoList, forexRates, calcForexRates, todoChange, todoDelete, useTotal } from '../../store/todo'
 
 const TodoList: FunctionComponent = () => {
   console.log('TodoList re-render')
@@ -13,6 +13,7 @@ const TodoList: FunctionComponent = () => {
   const planTotal = useTotal(planList)
   const doneTotal = useTotal(doneList)
   const onTodoChange = useSetAtom(todoChange)
+  const onTodoDelete = useSetAtom(todoDelete)
 
 
   return (
@@ -26,24 +27,24 @@ const TodoList: FunctionComponent = () => {
       <div className='mb-10'>
         <div className='mb-2'>计划</div>
         {
-          planList.map((item) => <TodoItem key={item.id} todo={item} onChange={onTodoChange} />)
+          planList.map((item) => <TodoItem key={item.id} todo={item} onChange={onTodoChange} onDelete={onTodoDelete} />)
         }
         <div className='flex'>
           <div>将要花费：</div>
           <div className="flex-1">
-            <ToalTotal total={planTotal} />
+            <Total total={planTotal} />
           </div>
         </div>
       </div>
       <div>
         <div className='mb-2'>已完成</div>
         {
-          doneList.map((item) => <TodoItem key={item.id} todo={item} onChange={onTodoChange} />)
+          doneList.map((item) => <TodoItem key={item.id} todo={item} onChange={onTodoChange} onDelete={onTodoDelete} />)
         }
         <div className='flex'>
           <div>一共花了：</div>
           <div className="flex-1">
-            <ToalTotal total={doneTotal} />
+            <Total total={doneTotal} />
           </div>
         </div>
       </div>

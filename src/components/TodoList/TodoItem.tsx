@@ -5,11 +5,12 @@ import { ITodoForm } from "@/types";
 interface Props {
   todo: ITodoForm,
   onChange: (todo: ITodoForm) => void
+  onDelete: (todo: ITodoForm) => void
 }
 
 const TodoItem: FunctionComponent<Props> = (props: Props) => {
   const todo = props.todo;
-  return <div className="flex py-3 border-b-1">
+  return <div className="flex my-3 border-b-1 relative">
     <div className="basis-8">
       <input type="checkbox" checked={todo.done} onChange={() => props.onChange(todo)} />
     </div>
@@ -25,6 +26,8 @@ const TodoItem: FunctionComponent<Props> = (props: Props) => {
     <div className="basis-28 text-right">
       ${todo.usd}
     </div>
+
+    <div className="ml-2 absolute -right-10" onClick={() => props.onDelete(todo)}>删除</div>
   </div>
 }
 
