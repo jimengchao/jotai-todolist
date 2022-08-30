@@ -1,13 +1,23 @@
+import { useState, useEffect } from 'react'
 import type { FunctionComponent } from 'react'
 import { useAtom, useSetAtom } from 'jotai'
+import { doneTodoList, planTodoList, forexRates, calcForexRates, todoChange, todoDelete, useTotal } from '@/store/todo'
+import { fetchForexRates } from '@/api/todoService'
+import { ITodoListState, COIN_KEY_TYPE, COIN_TYPE } from '@/types'
 import TodoForm from './TodoForm'
 import TodoItem from './TodoItem'
 import Total from './TodoTotal'
-import { doneTodoList, planTodoList, forexRates, calcForexRates, todoChange, todoDelete, useTotal } from '../../store/todo'
+
 
 const TodoList: FunctionComponent = () => {
   console.log('TodoList re-render')
-  const [rates] = useAtom(forexRates)
+
+
+  const [todoList, setTodoList] = useState<ITodoListState[]>([]);
+
+  const [rates, setRates] = useState<Partial<Record<COIN_KEY_TYPE, number>>>({})
+
+  // const [rates] = useAtom(forexRates)
   const [planList] = useAtom(planTodoList)
   const [doneList] = useAtom(doneTodoList)
   const planTotal = useTotal(planList)
@@ -16,9 +26,33 @@ const TodoList: FunctionComponent = () => {
   const onTodoDelete = useSetAtom(todoDelete)
 
 
+  useEffect(() => {
+    const getRates = async () => {
+      let result = await fetchForexRates();
+      setRates({
+        ...result.rates,
+        [result.base]: 1
+      })
+    }
+    getRates()
+  }, [])
+
+
+  const addTodo = (todo: ITodoListState) => {
+    setTodoList([
+      ...todoList,
+      {
+        ...todo,
+        rub: calcForexRates(Number(todo.price), rates[todo.coinType], rates.RUB),
+        cny: calcForexRates(Number(todo.price), rates[todo.coinType], rates.CNY),
+        usd: calcForexRates(Number(todo.price), rates[todo.coinType], rates.USD),
+      }
+    ])
+  }
+
   return (
     <div>
-      <TodoForm />
+      <TodoForm addTodo={addTodo} />
       <div className='text-right my-2'>
         <span>{calcForexRates(1, rates.CNY, rates.RUB)}₽/￥</span>
         <span className='ml-10'>{calcForexRates(1, rates.USD, rates.RUB)}₽/$</span>

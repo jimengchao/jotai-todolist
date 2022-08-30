@@ -1,21 +1,29 @@
-import { memo } from 'react'
+import { useState, memo } from 'react'
 import type { FunctionComponent, ChangeEvent } from 'react'
-import { useAtom } from 'jotai'
-import { useImmerAtom } from 'jotai/immer'
-import { useResetAtom } from 'jotai/utils'
-import { ITodoState, COIN_TYPE, COIN_KEY_TYPE, } from '@/types'
-import { todoState, addTodo } from '@/store/todo'
+import { ITodoFormState, COIN_TYPE, COIN_KEY_TYPE, ITodoListState, } from '@/types'
 
-const TodoForm: FunctionComponent = () => {
+interface IProps {
+  addTodo: (formState: ITodoListState) => void
+}
+
+let id = 0;
+const defaultData: ITodoFormState = {
+  task: '',
+  price: null,
+  coinType: 'USD',
+}
+
+const TodoForm: FunctionComponent<IProps> = ({ addTodo }: IProps) => {
   console.log('TodoForm re-render')
-  const [formState, setFormState] = useImmerAtom(todoState)
-  const [, setTodoList] = useAtom(addTodo)
-  const reset = useResetAtom(todoState)
-
+  const [formState, setFormState] = useState(defaultData);
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name: key, value } = e.currentTarget
-    setFormState((dart) => {
-      dart[key as keyof ITodoState] = value as (unknown & COIN_KEY_TYPE)
+
+    if (!value.trim()) return;
+
+    setFormState({
+      ...formState,
+      [key]: value
     })
   }
 
@@ -25,8 +33,9 @@ const TodoForm: FunctionComponent = () => {
       return;
     }
 
-    setTodoList({ ...formState })
-    reset()
+    addTodo({ ...formState, id: ++id })
+    setFormState({ ...defaultData })
+
   }
 
   return (

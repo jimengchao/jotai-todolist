@@ -14,6 +14,7 @@ export const forexRates = atom(async () => {
     [result.base]: 1
   };
 })
+
 let id = 0;
 export const todoState = atomWithReset<ITodoState>({
   task: '',
@@ -22,20 +23,6 @@ export const todoState = atomWithReset<ITodoState>({
 })
 
 export const todoList = atom<ITodoForm[]>([])
-
-export const addTodo = atom(null, (get, set, update: ITodoState) => {
-  const rates = get(forexRates);
-  set(todoList, (pre) => [
-    ...pre,
-    {
-      ...update,
-      id: ++id,
-      rub: calcForexRates(Number(update.price), rates[update.coinType], rates.RUB),
-      cny: calcForexRates(Number(update.price), rates[update.coinType], rates.CNY),
-      usd: calcForexRates(Number(update.price), rates[update.coinType], rates.USD),
-    }
-  ]);
-})
 
 export const todoChange = atom(null, (get, set, update: ITodoForm) => {
   set(todoList, (prev): ITodoForm[] => {

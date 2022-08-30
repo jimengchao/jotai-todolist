@@ -8,16 +8,16 @@ export enum COIN_TYPE {
 export type COIN_KEY_TYPE = keyof typeof COIN_TYPE
 
 export interface ITodoFormProps {
-  onSubmit: (todo: ITodoState) => void
+  onSubmit: (todo: ITodoFormState) => void
 }
 
-export interface ITodoState {
+export interface ITodoFormState {
   task: string,
   price: string | null,
   coinType: COIN_KEY_TYPE,
 }
 
-export interface ITodoForm extends ITodoState {
+export interface ITodoListState extends ITodoFormState {
   id: number,
   done?: boolean
   rub?: number,

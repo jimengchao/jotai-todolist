@@ -1,4 +1,4 @@
-import { COIN_KEY_TYPE } from "../types";
+import { COIN_KEY_TYPE } from "@/types";
 export interface IForexRates {
   success: boolean,
   base: COIN_KEY_TYPE,
