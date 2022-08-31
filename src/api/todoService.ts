@@ -7,7 +7,6 @@ export interface IForexRates {
 }
 
 export const fetchForexRates = () => {
-  console.log('fetch')
   return new Promise<IForexRates>((resolve) => {
     setTimeout(() => {
       resolve({

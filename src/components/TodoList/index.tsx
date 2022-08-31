@@ -1,30 +1,26 @@
-import { useState, useEffect } from 'react'
-import type { FunctionComponent } from 'react'
-import { useAtom, useSetAtom } from 'jotai'
-import { doneTodoList, planTodoList, forexRates, calcForexRates, todoChange, todoDelete, useTotal } from '@/store/todo'
-import { fetchForexRates } from '@/api/todoService'
-import { ITodoListState, COIN_KEY_TYPE, COIN_TYPE } from '@/types'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import type { FunctionComponent, ChangeEvent } from 'react'
+import { calcForexRates, calcTodoTotal } from '@/store/todo'
+import { fetchForexRates, } from '@/api/todoService'
+import { ITodoListState, COIN_KEY_TYPE, ITodoFormState } from '@/types'
 import TodoForm from './TodoForm'
 import TodoItem from './TodoItem'
 import Total from './TodoTotal'
 
+let id = 0;
+const defaultData: ITodoFormState = {
+  task: '',
+  price: null,
+  coinType: 'USD',
+}
 
 const TodoList: FunctionComponent = () => {
-  console.log('TodoList re-render')
 
+  const [formState, setFormState] = useState(defaultData);
 
   const [todoList, setTodoList] = useState<ITodoListState[]>([]);
 
   const [rates, setRates] = useState<Partial<Record<COIN_KEY_TYPE, number>>>({})
-
-  // const [rates] = useAtom(forexRates)
-  const [planList] = useAtom(planTodoList)
-  const [doneList] = useAtom(doneTodoList)
-  const planTotal = useTotal(planList)
-  const doneTotal = useTotal(doneList)
-  const onTodoChange = useSetAtom(todoChange)
-  const onTodoDelete = useSetAtom(todoDelete)
-
 
   useEffect(() => {
     const getRates = async () => {
@@ -37,27 +33,70 @@ const TodoList: FunctionComponent = () => {
     getRates()
   }, [])
 
+  const planList = useMemo(() => todoList.filter(todo => !todo.done), [todoList])
 
-  const addTodo = (todo: ITodoListState) => {
+  const doneList = useMemo(() => todoList.filter(todo => todo.done), [todoList])
+
+  const planTotal = useMemo(() => calcTodoTotal(planList), [planList])
+
+  const doneTotal = useMemo(() => calcTodoTotal(doneList), [doneList])
+
+  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name: key, value } = e.currentTarget
+
+    if (!value.trim()) return;
+
+    setFormState({
+      ...formState,
+      [key]: value
+    })
+  }, [formState])
+
+  const handleSubmit = useCallback(() => {
+    if (!formState.price || !formState.task || !formState.coinType) {
+      alert('请完成选择')
+      return;
+    }
+
     setTodoList([
       ...todoList,
       {
-        ...todo,
-        rub: calcForexRates(Number(todo.price), rates[todo.coinType], rates.RUB),
-        cny: calcForexRates(Number(todo.price), rates[todo.coinType], rates.CNY),
-        usd: calcForexRates(Number(todo.price), rates[todo.coinType], rates.USD),
+        ...formState,
+        id: ++id,
+        rub: calcForexRates(Number(formState.price), rates[formState.coinType], rates.RUB),
+        cny: calcForexRates(Number(formState.price), rates[formState.coinType], rates.CNY),
+        usd: calcForexRates(Number(formState.price), rates[formState.coinType], rates.USD),
       }
     ])
+
+    setFormState({ ...defaultData })
+  }, [formState])
+
+  const onTodoChange = useCallback((todo: ITodoListState) => {
+    const list = todoList.map(item => {
+      if (item.id === todo.id) {
+        item.done = !item.done
+      }
+      return item
+    });
+
+    setTodoList(list)
+  }, [todoList])
+
+  const onTodoDelete = (todo: ITodoListState) => {
+    setTodoList(todoList.filter(item => item.id !== todo.id))
   }
+
 
   return (
     <div>
-      <TodoForm addTodo={addTodo} />
+      <TodoForm formData={formState} onChange={handleChange} onSubmit={handleSubmit} />
       <div className='text-right my-2'>
         <span>{calcForexRates(1, rates.CNY, rates.RUB)}₽/￥</span>
         <span className='ml-10'>{calcForexRates(1, rates.USD, rates.RUB)}₽/$</span>
         <span className='ml-10'>{calcForexRates(1, rates.USD, rates.CNY)}￥/$</span>
       </div>
+
       <div className='mb-10'>
         <div className='mb-2'>计划</div>
         {
@@ -70,6 +109,7 @@ const TodoList: FunctionComponent = () => {
           </div>
         </div>
       </div>
+
       <div>
         <div className='mb-2'>已完成</div>
         {

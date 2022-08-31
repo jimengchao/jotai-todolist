@@ -4,7 +4,7 @@ interface Props {
   total: { rub: number, cny: number, usd: number }
 }
 
-const ToalTotal: FunctionComponent<Props> = (props) => {
+const TotalTotal: FunctionComponent<Props> = (props) => {
   const total = props.total
   return <>
     <div className='flex justify-end'>
@@ -19,8 +19,7 @@ const ToalTotal: FunctionComponent<Props> = (props) => {
       </div>
     </div>
   </>
-
 }
 
 
-export default memo(ToalTotal)
+export default memo(TotalTotal)

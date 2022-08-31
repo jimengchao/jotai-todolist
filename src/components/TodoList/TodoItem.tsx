@@ -1,11 +1,11 @@
 import { memo } from "react";
 import type { FunctionComponent } from 'react'
-import { ITodoForm } from "@/types";
+import { ITodoListState } from "@/types";
 
 interface Props {
-  todo: ITodoForm,
-  onChange: (todo: ITodoForm) => void
-  onDelete: (todo: ITodoForm) => void
+  todo: ITodoListState,
+  onChange: (todo: ITodoListState) => void
+  onDelete: (todo: ITodoListState) => void
 }
 
 const TodoItem: FunctionComponent<Props> = (props: Props) => {
@@ -26,7 +26,6 @@ const TodoItem: FunctionComponent<Props> = (props: Props) => {
     <div className="basis-28 text-right">
       ${todo.usd}
     </div>
-
     <div className="ml-2 absolute -right-10" onClick={() => props.onDelete(todo)}>删除</div>
   </div>
 }
