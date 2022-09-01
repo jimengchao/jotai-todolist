@@ -49,16 +49,6 @@ const TodoList: FunctionComponent = () => {
 
     if (!value.trim()) return;
 
-    // setFormState({
-    //   ...formState,
-    //   [key]: value
-    // })
-
-    // setFormState({
-    //   ...formState,
-    //   [key]: value
-    // })
-
     setFormState(
       produce<ITodoFormState>(drat => {
         drat[key as keyof ITodoFormState] = value as (unknown & COIN_KEY_TYPE)
