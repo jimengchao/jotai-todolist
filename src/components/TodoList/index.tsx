@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import type { FunctionComponent, ChangeEvent } from 'react'
+import produce from "immer"
 import { calcForexRates, calcTodoTotal } from '@/store/todo'
 import { fetchForexRates, } from '@/api/todoService'
 import { ITodoListState, COIN_KEY_TYPE, ITodoFormState } from '@/types'
@@ -13,6 +14,7 @@ const defaultData: ITodoFormState = {
   price: null,
   coinType: 'USD',
 }
+
 
 const TodoList: FunctionComponent = () => {
 
@@ -30,6 +32,7 @@ const TodoList: FunctionComponent = () => {
         [result.base]: 1
       })
     }
+
     getRates()
   }, [])
 
@@ -46,10 +49,23 @@ const TodoList: FunctionComponent = () => {
 
     if (!value.trim()) return;
 
-    setFormState({
-      ...formState,
-      [key]: value
-    })
+    // setFormState({
+    //   ...formState,
+    //   [key]: value
+    // })
+
+    // setFormState({
+    //   ...formState,
+    //   [key]: value
+    // })
+
+    setFormState(
+      produce<ITodoFormState>(drat => {
+        drat[key as keyof ITodoFormState] = value as (unknown & COIN_KEY_TYPE)
+      })
+    )
+
+
   }, [formState])
 
   const handleSubmit = useCallback(() => {
@@ -58,35 +74,33 @@ const TodoList: FunctionComponent = () => {
       return;
     }
 
-    setTodoList([
-      ...todoList,
-      {
-        ...formState,
-        id: ++id,
-        rub: calcForexRates(Number(formState.price), rates[formState.coinType], rates.RUB),
-        cny: calcForexRates(Number(formState.price), rates[formState.coinType], rates.CNY),
-        usd: calcForexRates(Number(formState.price), rates[formState.coinType], rates.USD),
-      }
-    ])
+    setTodoList(
+      produce<ITodoListState[]>(drat => {
+        drat.push({
+          ...formState,
+          id: ++id,
+          rub: calcForexRates(Number(formState.price), rates[formState.coinType], rates.RUB),
+          cny: calcForexRates(Number(formState.price), rates[formState.coinType], rates.CNY),
+          usd: calcForexRates(Number(formState.price), rates[formState.coinType], rates.USD),
+        })
+      })
+    )
 
     setFormState({ ...defaultData })
   }, [formState])
 
   const onTodoChange = useCallback((todo: ITodoListState) => {
-    const list = todoList.map(item => {
-      if (item.id === todo.id) {
+    setTodoList(
+      produce<ITodoListState[]>(drat => {
+        let item = drat.find(item => item.id === todo.id) as ITodoListState
         item.done = !item.done
-      }
-      return item
-    });
-
-    setTodoList(list)
+      })
+    )
   }, [todoList])
 
   const onTodoDelete = (todo: ITodoListState) => {
     setTodoList(todoList.filter(item => item.id !== todo.id))
   }
-
 
   return (
     <div>
